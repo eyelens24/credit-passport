@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Credit Passport</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5 5.5-6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><path d="M12 16.5v.01"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.5v.01"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></symbol>
+</svg>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="#" aria-label="Credit Passport, start over" onclick="return false"><svg width="26" height="33" viewBox="0 0 44 56" aria-hidden="true"><rect width="44" height="56" rx="7" fill="#173B45"/><path d="M7.5 4v48" stroke="#2E5A63" stroke-width="1.5"/><circle cx="25" cy="23" r="11" fill="none" stroke="#E8EEEA" stroke-width="3.5"/><path d="M19.5 23.5l4.5 4.5 9.5-12" fill="none" stroke="#F59E5B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 40h21M16 46h13" stroke="#4F7A83" stroke-width="2.5" stroke-linecap="round"/></svg><span>Credit Passport</span></a>
+    <ol class="steps" id="steps" aria-label="Demo steps"></ol>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- 1 APPLICANT -->
+  <section class="screen" id="s1">
+    <div class="hero">
+      <div class="hero-copy">
+        <h1>Lenders can't price risk they can't see.</h1>
+        <p class="lead">When someone's history is overseas, or their rent goes to a housemate instead of an agent, lenders can't check it. So the applicant gets treated as higher risk, or their file waits in manual review.</p>
+        <p class="tag">Unverified isn't the same as risky. Credit Passport measures the actual risk.</p>
+        <div class="actions"><button class="btn" data-go="2">Connect Priya's accounts <svg class="ico"><use href="#i-arrow"/></svg></button></div>
+      </div>
+      <div class="person" aria-label="Applicant">
+        <div class="who"><div class="photo" aria-hidden="true">PS</div><div><b>Priya Sharma</b><span>Registered nurse · permanent resident</span></div></div>
+        <dl class="facts">
+          <dt>Moved</dt><dd>Mumbai to Melbourne, March 2025</dd>
+          <dt>Housing</dt><dd>Room in a share house, pays the main tenant</dd>
+          <dt>In India</dt><dd>4+ years of rent and salary history</dd>
+          <dt>Applying for</dt><dd>Home loan on a $550,000 apartment</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:1.4rem">What the lender can verify today</h2>
+      <ul class="clean verify" style="margin-top:12px">
+        <li data-s="low"><h3>Payslips</h3><span class="chip low"><svg class="ico" style="width:16px;height:16px"><use href="#i-check"/></svg>Verified</span><p>Her salary from Northside Hospital checks out.</p></li>
+        <li data-s="moderate"><h3>Australian bank history</h3><span class="chip moderate"><svg class="ico" style="width:16px;height:16px"><use href="#i-alert"/></svg>Only 18 months</span><p>Short, and nobody reads it end to end.</p></li>
+        <li data-s="high"><h3>Rent</h3><span class="chip high"><svg class="ico" style="width:16px;height:16px"><use href="#i-x"/></svg>No ledger</span><p>Paid privately to a housemate, so there's no agent or tenancy record.</p></li>
+        <li data-s="high"><h3>History in India</h3><span class="chip high"><svg class="ico" style="width:16px;height:16px"><use href="#i-x"/></svg>Can't be checked</span><p>Four years of rent and salary the lender has no way to see.</p></li>
+        <li data-s="grey"><h3>Credit file</h3><span class="chip grey"><svg class="ico" style="width:16px;height:16px"><use href="#i-info"/></svg>Thin</span><p>One input, rarely the deciding one.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 2 CONNECT -->
+  <section class="screen" id="s2" hidden>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <h2>Connect Priya's accounts</h2>
+      <p class="muted" style="max-width:62ch">Banks send the data straight to Credit Passport, read-only. Priya can't edit it, and she can stop sharing at any time.</p>
+    </div>
+    <div class="providers">
+      <div class="card provider">
+        <div class="top"><h3>Australian accounts</h3><span class="chip mock">Basiq · mocked</span></div>
+        <div class="bankrow"><span class="bl" style="background:#2F5DA8">HB</span><div><b>Harbourside Bank</b><div class="muted small">Consumer Data Right (open banking)</div></div></div>
+        <div class="accts num"><span>Everyday ••4471</span><span>Goal Saver ••9902</span></div>
+        <div id="au-status"><button class="btn" id="au-connect">Connect Harbourside Bank</button></div>
+      </div>
+      <div class="card provider">
+        <div class="top"><h3>Overseas accounts</h3><div class="actions" style="gap:6px"><span class="chip violet">Optional</span><span class="chip mock">Yodlee · mocked</span></div></div>
+        <div class="bankrow"><span class="bl" style="background:#B4532A">SBI</span><div><b>State Bank of India</b><div class="muted small">India's Account Aggregator network</div></div></div>
+        <div class="accts num"><span>Savings ••2208</span><span class="muted">Jan 2021 – Feb 2025, in rupees</span></div>
+        <div id="in-status"><button class="btn ghost" id="in-connect">Connect State Bank of India</button></div>
+      </div>
+    </div>
+    <p class="hint"><svg class="ico"><use href="#i-spark"/></svg>Try skipping India and see how the risk report changes.</p>
+    <div class="actions"><button class="btn" id="to-analyse" disabled>Analyse transactions</button><button class="btn ghost" data-go="1">Back</button></div>
+  </section>
+
+  <!-- 3 ANALYSE -->
+  <section class="screen" id="s3" hidden>
+    <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <h2 id="an-title" class="num">Reading transactions</h2>
+        <p class="muted" style="max-width:66ch">Payees are grouped by name, amount and note, with account numbers removed. Only those summaries go to the AI. Plain code does all the counting.</p>
+      </div>
+      <span class="chip moderate" id="src-badge" title="The AI step is using a saved response">Offline backup</span>
+    </div>
+    <div class="bar" aria-hidden="true"><div id="an-bar"></div></div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Payee group</th><th>Pattern</th><th>AI decision</th><th>Reason</th></tr></thead>
+        <tbody id="an-rows"></tbody>
+      </table>
+    </div>
+    <p class="muted small">The three highlighted rows all go to the same housemate. The AI separates rent from a bill share and a one-off personal payment.</p>
+    <div class="actions"><button class="btn" id="to-report" disabled>See the risk report</button></div>
+  </section>
+
+  <!-- 4 REPORT -->
+  <section class="screen" id="s4" hidden>
+    <div class="rhead">
+      <div class="rid">
+        <div class="who"><div class="photo" aria-hidden="true">PS</div><div><h2 style="color:#fff;font-size:1.8rem">Priya Sharma</h2><span style="color:var(--on-dark)">Home loan applicant · 24 Sep 2026</span></div></div>
+        <p class="rsum" id="summary"></p>
+        <div class="srcs" id="r-srcs"></div>
+      </div>
+      <div class="scorebox" id="overall" aria-live="polite">
+        <div class="scoretop"><span class="scorenum num" id="sc-num"></span><span class="scoreof">out of 100<br>risk score</span></div>
+        <b class="rating" id="sc-rating"></b>
+        <div class="scale" aria-hidden="true"><span class="marker" id="sc-marker"></span></div>
+        <div class="scale-l"><span>Lower risk</span><span>Higher risk</span></div>
+      </div>
+    </div>
+
+    <div class="card scenario">
+      <div class="scen-head"><h3>Loan scenario</h3><span class="chip mock">Serviceability via Tiimely · mocked</span></div>
+      <div class="sliders">
+        <div class="slider"><label for="sl-price">Property price <output id="o-price" for="sl-price"></output></label><input type="range" id="sl-price" min="300000" max="900000" step="5000" value="550000"></div>
+        <div class="slider"><label for="sl-dep">Deposit <output id="o-dep" for="sl-dep"></output></label><input type="range" id="sl-dep" min="20000" max="200000" step="5000" value="110000"></div>
+        <div class="slider"><label for="sl-rate">Interest rate <output id="o-rate" for="sl-rate"></output></label><input type="range" id="sl-rate" min="4" max="9" step="0.1" value="6"></div>
+      </div>
+      <p class="scen-out num" id="kv"></p>
+      <div class="lever-line"><p id="lever-text"></p><button class="btn ghost" id="lever-btn">Try this price</button></div>
+    </div>
+
+    <div class="fsec" id="attn-sec">
+      <h2 class="fh" id="attn-title">Needs attention</h2>
+      <div class="factors" id="factors-attn"></div>
+    </div>
+    <div class="fsec">
+      <h2 class="fh" id="good-title">Looking good</h2>
+      <div class="goodlist" id="factors-good"></div>
+      <p class="muted small">Tap any factor to see the evidence. Thresholds are illustrative, for this prototype.</p>
+    </div>
+    <div class="actions"><button class="btn" data-go="5">Send to lender <svg class="ico"><use href="#i-arrow"/></svg></button></div>
+  </section>
+
+  <!-- 5 SEND -->
+  <section class="screen" id="s5" hidden>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <h2>Send the risk profile to the lender</h2>
+      <p class="muted" style="max-width:62ch">Priya approves the share. The lender's decision system receives the profile, not her bank statements.</p>
+    </div>
+    <div class="flow" aria-label="How the data flows">
+      <div class="col">
+        <div class="node"><b>Basiq</b><span class="muted small">Harbourside Bank, Australia</span></div>
+        <div class="node" id="flow-in"><b>Yodlee</b><span class="muted small">State Bank of India</span></div>
+      </div>
+      <div class="arrow"><svg class="ico" style="width:28px;height:28px"><use href="#i-arrow"/></svg></div>
+      <div class="node core"><b style="font-size:1.2rem">Credit Passport</b><span>Labels payees, measures 8 risk factors</span></div>
+      <div class="arrow"><svg class="ico" style="width:28px;height:28px"><use href="#i-arrow"/></svg></div>
+      <div class="node"><b>Tiimely</b><span class="muted small">Southgate Home Loans' decision system</span></div>
+    </div>
+    <div class="two">
+      <div class="card" style="display:flex;flex-direction:column;gap:12px">
+        <h3>What the lender receives</h3>
+        <ul class="clean list" id="receives"></ul>
+        <details><summary>See the data sent</summary><pre class="json" id="payload"></pre></details>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:12px">
+        <h3>What stays private</h3>
+        <ul class="clean list">
+          <li><svg class="ico" style="color:var(--primary)"><use href="#i-lock"/></svg><span>Everyday spending is never shared, only the totals used in the factors.</span></li>
+          <li><svg class="ico" style="color:var(--primary)"><use href="#i-lock"/></svg><span>The housemate's name is hidden everywhere.</span></li>
+          <li><svg class="ico" style="color:var(--primary)"><use href="#i-lock"/></svg><span>Raw bank data is deleted once the profile is built.</span></li>
+          <li><svg class="ico" style="color:var(--primary)"><use href="#i-lock"/></svg><span>Priya approves every share, and can stop it.</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <div><h3>What your lender sees</h3><p class="muted small">A preview of Priya's profile inside the lender's review screen, using the scenario you set.</p></div>
+      <div class="lvwrap" id="lvwrap"><div class="lv" id="lv"></div></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="send">Send risk profile to lender</button>
+      <span class="sent" id="sent" hidden><svg class="ico"><use href="#i-check"/></svg><span id="sent-text"></span></span>
+      <button class="btn ghost" id="restart" style="margin-left:auto">Start over</button>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <p>Prototype with made-up people, banks and data. Integrations are mocked. General information only, not financial advice.</p>
+    <p>Integration concept with mocked connections. Not affiliated with Basiq, Yodlee or Tiimely.</p>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

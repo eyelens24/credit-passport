@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Credit Passport</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#FFF9F4; --surface:#FFFFFF; --ink:#1F2A30; --muted:#56636A; --line:#F0E7DE; --line2:#E6DACE; --soft:#FFF3EA;
+  --primary:#0E7490; --primary-dark:#155E75; --primary-tint:#E0F4F8; --on-dark:#CFEFF6;
+  --violet:#5646C8; --violet-ink:#3E329A; --violet-tint:#ECE9FF;
+  --apricot:#F59E5B; --apricot-tint:#FFEBDC;
+  --low:#2C7A52; --low-tint:#E3F4EE; --mod:#A4520F; --mod-tint:#FFEBDC; --high:#B23A3A; --high-tint:#FBE3E1; --grey-tint:#F2EDE8;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"Source Sans 3","Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+::selection{background:#C5ECF3;color:var(--ink)}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:6px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-0.01em}
+h1{font-size:clamp(2rem,4.6vw,3.2rem);line-height:1.04;font-weight:800}
+h2{font-size:clamp(1.5rem,2.6vw,1.9rem);line-height:1.15;font-weight:800}
+h3{font-size:1.1rem;font-weight:700;line-height:1.25}
+p{margin:0}
+button,input{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:.92rem}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:24px}
+
+/* site header */
+.site{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:10}
+.site .wrap{display:flex;align-items:center;gap:24px;min-height:64px;flex-wrap:wrap;padding-block:8px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:1.2rem;letter-spacing:-0.01em;white-space:nowrap;color:#173B45;text-decoration:none}
+.brand i{width:28px;height:34px;border-radius:7px;background:var(--primary);color:#fff;display:grid;place-items:center;font-style:normal;font-size:.7rem}
+.steps{display:flex;gap:4px;list-style:none;margin:0 0 0 auto;padding:0;overflow-x:auto}
+.steps button{background:none;border:0;border-radius:999px;padding:8px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap;color:var(--muted);font-weight:600;font-size:.92rem;min-height:40px}
+.steps button i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.76rem;font-weight:700;border:1.5px solid var(--line2)}
+.steps button[aria-current="step"]{background:var(--primary-tint);color:var(--primary-dark)}
+.steps button[aria-current="step"] i{background:var(--primary);border-color:var(--primary);color:#fff}
+.steps button.done i{background:var(--primary-tint);border-color:var(--primary-tint);color:var(--primary)}
+.steps button:disabled{cursor:default;opacity:.55}
+
+main{padding-block:40px 56px}
+.screen{display:flex;flex-direction:column;gap:28px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--primary);color:#fff;border:0;border-radius:14px;padding:0 22px;min-height:52px;font-weight:700;font-size:1rem;cursor:pointer;box-shadow:0 6px 16px rgba(14,116,144,.22);text-decoration:none}
+.btn:hover{background:var(--primary-dark)}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line2);box-shadow:none}
+.btn.ghost:hover{background:var(--soft)}
+.actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 11px;font-size:.82rem;font-weight:700;white-space:nowrap}
+.chip.low{background:var(--low-tint);color:var(--low)} .chip.moderate{background:var(--mod-tint);color:var(--mod)} .chip.high{background:var(--high-tint);color:var(--high)}
+.chip.grey{background:var(--grey-tint);color:var(--muted)} .chip.violet{background:var(--violet-tint);color:var(--violet-ink)} .chip.mock{background:var(--grey-tint);color:var(--muted);font-weight:600}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* 1 applicant */
+.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:40px;align-items:center}
+.hero-copy{display:flex;flex-direction:column;gap:18px}
+.hero-copy p.lead{font-size:1.15rem;color:var(--muted);max-width:56ch}
+.tag{font-family:var(--display);font-weight:700;font-size:1.2rem;color:var(--violet-ink);max-width:36ch}
+.person{position:relative;overflow:hidden;background:var(--primary);color:#fff;border-radius:24px;padding:26px;display:flex;flex-direction:column;gap:18px;box-shadow:0 14px 32px rgba(31,42,48,.14)}
+.person::before{content:"";position:absolute;width:200px;height:200px;border-radius:50%;background:var(--apricot);right:-70px;top:-90px}
+.person > *{position:relative}
+.who{display:flex;gap:14px;align-items:center}
+.photo{width:64px;height:78px;border:2px solid rgba(255,255,255,.6);border-radius:10px;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.4rem;flex:none}
+.who b{font-family:var(--display);font-size:1.45rem;display:block}
+.who span{color:var(--on-dark)}
+dl.facts{margin:0;display:grid;grid-template-columns:auto 1fr;gap:10px 18px}
+dl.facts dt{color:var(--on-dark)} dl.facts dd{margin:0;font-weight:600}
+.verify{display:flex;flex-direction:column}
+.verify li{display:grid;grid-template-columns:1fr auto;gap:4px 16px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.verify li:first-child{border-top:0;padding-top:4px}
+.verify li p{grid-column:1/-1;color:var(--muted);font-size:.95rem}
+ul.clean{list-style:none;margin:0;padding:0}
+
+/* 2 connect */
+.providers{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.provider{display:flex;flex-direction:column;gap:14px}
+.provider .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.bankrow{display:flex;gap:12px;align-items:center}
+.bl{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:.85rem;flex:none}
+.accts{display:flex;flex-direction:column;gap:6px;font-size:.95rem}
+.status{display:flex;gap:8px;align-items:center;font-weight:700;min-height:52px}
+.status.ok{color:var(--low)}
+.hint{display:flex;gap:10px;align-items:center;background:var(--violet-tint);color:var(--violet-ink);border-radius:14px;padding:14px 16px;font-weight:600}
+
+/* 3 analyse */
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar div{height:100%;width:0;background:var(--primary);transition:width .12s linear}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:700;color:var(--muted);font-size:.85rem;background:var(--soft);position:sticky;top:0}
+tbody tr:last-child td{border-bottom:0}
+td.payee{font-family:var(--mono);font-size:.85rem;white-space:nowrap}
+tr.show{background:var(--violet-tint)}
+tr.reveal{animation:rev .35s ease both}
+@keyframes rev{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+tr.late td{background:var(--mod-tint);color:#7A3A09;font-weight:700}
+
+/* 4 report */
+.rhead{position:relative;overflow:hidden;background:var(--primary-dark);color:#fff;border-radius:24px;padding:26px 28px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+.rhead::before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;background:var(--apricot);right:-90px;bottom:-170px;opacity:.9}
+.rhead > *{position:relative}
+.rhead .srcs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.rhead .src{background:rgba(255,255,255,.14);border-radius:999px;padding:4px 12px;font-size:.88rem}
+.rhead .src.off{background:transparent;border:1px dashed rgba(255,255,255,.45);color:var(--on-dark)}
+.overall{background:#fff;color:var(--ink);border-radius:18px;padding:16px 20px;min-width:230px;display:flex;flex-direction:column;gap:4px}
+.overall b{font-family:var(--display);font-size:1.6rem;line-height:1.1}
+.overall.low b{color:var(--low)} .overall.moderate b{color:var(--mod)} .overall.high b{color:var(--high)}
+.overall.pulse{animation:pulse 1s ease-out}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(245,158,91,.9)}100%{box-shadow:0 0 0 18px rgba(245,158,91,0)}}
+.rgrid{display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:start}
+.side{position:sticky;top:88px;display:flex;flex-direction:column;gap:20px}
+.slider{display:flex;flex-direction:column;gap:6px}
+.slider label{display:flex;justify-content:space-between;font-weight:700;gap:10px}
+.slider output{font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--primary);height:28px}
+dl.kv{margin:0;display:grid;grid-template-columns:1fr auto;gap:8px 12px;font-size:.95rem}
+dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.lever{background:var(--violet-tint);border:0}
+.lever p{color:var(--violet-ink)}
+.factors{display:flex;flex-direction:column;gap:12px}
+.factor{background:var(--surface);border:1px solid var(--line);border-radius:18px}
+.factor > button{width:100%;background:none;border:0;padding:18px 20px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;text-align:left;cursor:pointer;border-radius:18px}
+.factor > button:hover{background:var(--soft)}
+.factor .fname{font-family:var(--display);font-weight:700;font-size:1.08rem}
+.factor .ffind{color:var(--muted);font-size:.97rem}
+.factor .chev{transition:transform .2s}
+.factor [aria-expanded="true"] .chev{transform:rotate(180deg)}
+.factor .ev{padding:0 20px 20px;display:flex;flex-direction:column;gap:12px}
+.factor .ev .tablewrap{max-height:320px;overflow:auto}
+.lvl{width:12px;height:12px;border-radius:50%}
+.lvl.low{background:var(--low)} .lvl.moderate{background:var(--mod)} .lvl.high{background:var(--high)}
+
+/* 5 send */
+.flow{display:grid;grid-template-columns:1fr auto 1.1fr auto 1fr;gap:14px;align-items:center}
+.flow .col{display:flex;flex-direction:column;gap:10px}
+.node{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.node.off{border-style:dashed;color:var(--muted)}
+.node.core{background:var(--primary);color:#fff;border-color:var(--primary);padding:20px}
+.node.core span{color:var(--on-dark)}
+.node b{font-family:var(--display)}
+.arrow{color:var(--muted);display:grid;place-items:center}
+.two{display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:start}
+.list li{display:flex;gap:12px;align-items:flex-start;padding:10px 0}
+details summary{cursor:pointer;font-weight:700;color:var(--primary);min-height:44px;display:flex;align-items:center}
+pre.json{font-family:var(--mono);font-size:.8rem;background:#1F2A30;color:#E6EFEA;border-radius:14px;padding:16px;overflow:auto;max-height:340px;margin:8px 0 0}
+.sent{display:flex;gap:10px;align-items:center;color:var(--low);font-weight:700}
+
+footer.site-foot{border-top:1px solid var(--line);padding-block:20px 28px;color:var(--muted);font-size:.9rem}
+footer.site-foot .wrap{display:flex;flex-direction:column;gap:4px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px);text-align:center;z-index:20}
+.toast.show{opacity:1}
+
+@media (max-width:920px){
+  .hero,.providers,.two,.rgrid,.rhead{grid-template-columns:1fr}
+  .side{position:static}
+  .flow{grid-template-columns:1fr}
+  .flow .arrow svg{transform:rotate(90deg)}
+  .overall{min-width:0}
+}
+@media (max-width:560px){
+  .wrap{padding-inline:16px}
+  main{padding-block:28px 40px}
+  .card{padding:18px}
+  .factor > button{grid-template-columns:auto 1fr;padding:16px}
+  .factor > button > span:last-child{grid-column:2;justify-self:start}
+  .factor > button .chev{display:none}
+  .factor .ev table{min-width:520px}
+  .steps{margin-left:0;width:100%}
+  .steps button span{display:none}
+  .steps button[aria-current="step"] span{display:inline}
+}
+
+/* report v2: lower density */
+.rhead{grid-template-columns:1fr 400px;padding:32px;gap:32px}
+.rid{display:flex;flex-direction:column;gap:14px}
+.rsum{font-size:1.15rem;line-height:1.5;color:#fff;max-width:46ch}
+.scorebox{background:#fff;color:var(--ink);border-radius:22px;padding:24px 26px;display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.scorebox.pulse{animation:pulse 1s ease-out}
+.scoretop{display:flex;align-items:flex-end;gap:12px}
+.scorenum{font-family:var(--display);font-weight:800;font-size:5.5rem;line-height:.85;letter-spacing:-0.03em}
+.scoreof{color:var(--muted);font-size:.95rem;line-height:1.25;padding-bottom:6px}
+.rating{font-family:var(--display);font-size:2rem;line-height:1.1}
+.scorebox.low .scorenum,.scorebox.low .rating{color:var(--low)}
+.scorebox.moderate .scorenum,.scorebox.moderate .rating{color:var(--mod)}
+.scorebox.high .scorenum,.scorebox.high .rating{color:var(--high)}
+.scale{position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--low-tint) 0 25%,var(--mod-tint) 25% 50%,var(--high-tint) 50% 100%);margin-top:6px}
+.marker{position:absolute;top:50%;width:20px;height:20px;border-radius:50%;background:var(--ink);border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);transform:translate(-50%,-50%);transition:left .3s ease}
+.scale-l{display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem}
+.scenario{display:flex;flex-direction:column;gap:18px;padding:28px}
+.scen-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.sliders{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px}
+.scen-out{font-size:1.1rem;color:var(--muted)}
+.scen-out b{color:var(--ink)}
+.lever-line{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--violet-tint);border-radius:14px;padding:14px 18px}
+.lever-line p{color:var(--violet-ink);max-width:70ch}
+.fsec{display:flex;flex-direction:column;gap:14px}
+.fh{font-size:1.4rem}
+.factor.big > button{padding:22px 24px}
+.factor.big .fname{font-size:1.25rem}
+.goodlist{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.goodlist .factor{border:0;border-radius:0;border-top:1px solid var(--line)}
+.goodlist .factor:first-child{border-top:0}
+.goodlist .factor > button{border-radius:0;padding:16px 22px}
+@media (max-width:920px){ .rhead{grid-template-columns:1fr;padding:22px} .sliders{grid-template-columns:1fr;gap:18px} }
+@media (max-width:560px){ .scorenum{font-size:4.2rem} .rating{font-size:1.6rem} .scenario{padding:18px} }
+
+/* verify list v2: louder status */
+.verify{gap:10px;margin-top:16px!important}
+.verify li,.verify li:first-child{border-top:0;border-radius:16px;padding:18px 20px}
+.verify li[data-s="low"]{background:var(--low-tint)} .verify li[data-s="moderate"]{background:var(--mod-tint)} .verify li[data-s="high"]{background:var(--high-tint)} .verify li[data-s="grey"]{background:var(--grey-tint)}
+.verify li p{color:#3F4C52}
+.verify .chip{font-size:1.1rem;padding:10px 18px;gap:9px;color:#fff;box-shadow:0 2px 6px rgba(31,42,48,.12)}
+.verify .chip .ico{width:24px!important;height:24px!important;stroke-width:2.4}
+.verify li[data-s="low"] .chip{background:var(--low)} .verify li[data-s="moderate"] .chip{background:var(--mod)} .verify li[data-s="high"] .chip{background:var(--high)} .verify li[data-s="grey"] .chip{background:var(--muted)}
+.verify h3{font-size:1.2rem}
+@media (max-width:560px){ .verify li{grid-template-columns:1fr} .verify .chip{justify-self:start;grid-row:1} }
+
+/* lender preview (scaled 1920x1080 frame) */
+.lvwrap{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:14px;border:1px solid var(--line2);background:#F3F5F8;box-shadow:0 10px 30px rgba(31,42,48,.12)}
+.lv{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:#F3F5F8;font-family:var(--body);color:#1F2A30;font-size:18px;line-height:1.4;font-variant-numeric:tabular-nums}
+.lv h2,.lv h3,.lv .d{font-family:var(--display);margin:0;letter-spacing:-.01em}
+.lv .top{height:76px;background:#fff;border-bottom:1px solid #E3E8EE;display:flex;align-items:center;padding:0 48px;gap:18px}
+.lv .lmark{width:36px;height:36px;border-radius:10px;background:#2B3A67;color:#fff;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:15px}
+.lv .lname{font-family:var(--display);font-weight:700;font-size:22px}.lv .sep{color:#8A96A3}.lv .right{margin-left:auto;display:flex;gap:28px;color:#56636A}
+.lv .grid{display:grid;grid-template-columns:430px 1fr 400px;gap:28px;padding:28px 48px}
+.lv .lcard{background:#fff;border:1px solid #E3E8EE;border-radius:20px;padding:26px}
+.lv .col{display:flex;flex-direction:column;gap:24px}
+.lv .lbl{color:#56636A;font-size:16px}
+.lv dl{margin:14px 0 0;display:grid;grid-template-columns:1fr auto;gap:10px 16px}.lv dt{color:#56636A}.lv dd{margin:0;font-weight:700;text-align:right}
+.lv .cp{border:2px solid #0E7490;border-radius:24px;background:#fff;overflow:hidden}
+.lv .cphead{display:flex;align-items:center;gap:12px;padding:18px 26px;background:#FFF9F4;border-bottom:1px solid #F0E7DE}
+.lv .cphead h2{font-size:22px;color:#173B45}.lv .ver{margin-left:auto;display:flex;align-items:center;gap:8px;background:#E3F4EE;color:#2C7A52;font-weight:700;border-radius:999px;padding:5px 14px;font-size:16px}
+.lv .hero{display:grid;grid-template-columns:auto 1fr;gap:36px;padding:26px;align-items:center;border-bottom:1px solid #F0E7DE}
+.lv .bignum{font-family:var(--display);font-weight:800;font-size:120px;line-height:.8;letter-spacing:-.04em}
+.lv .of{color:#56636A;font-size:18px;margin-top:10px}
+.lv .lrating{font-family:var(--display);font-weight:800;font-size:40px;line-height:1}
+.lv .lscale{position:relative;height:12px;border-radius:6px;background:linear-gradient(90deg,#E3F4EE 0 25%,#FFEBDC 25% 50%,#FBE3E1 50%);margin:18px 0 8px}
+.lv .mk{position:absolute;top:50%;width:24px;height:24px;border-radius:50%;background:#1F2A30;border:4px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.3);transform:translate(-50%,-50%)}
+.lv .sl{display:flex;justify-content:space-between;color:#56636A;font-size:15px}
+.lv .lsrcs{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}.lv .lsrc{background:#F3F5F8;border-radius:999px;padding:5px 14px;font-size:15px;color:#3F4C52}
+.lv .fsec2{padding:18px 26px 6px}.lv .fsec2 h3{font-size:19px;margin-bottom:4px}
+.lv .frow{display:flex;align-items:center;gap:14px;padding:8px 0;border-top:1px solid #F0E7DE}.lv .fsec2 h3+.frow{border-top:0}
+.lv .dot{width:12px;height:12px;border-radius:50%;flex:none}.lv .ft{flex:1;display:flex;flex-direction:column}.lv .ft span{color:#56636A;font-size:16px}
+.lv .lchip{border-radius:999px;padding:3px 12px;font-weight:700;font-size:15px}
+.lv ul{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:12px}.lv li{display:flex;gap:10px}
+.lv .ic{width:22px;height:22px;flex:none;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.lv .lbtn{display:flex;align-items:center;justify-content:center;height:54px;border-radius:14px;font-weight:700;font-size:18px}
+.lv .lbtn.p{background:#2B3A67;color:#fff}.lv .lbtn.g{border:1px solid #D5DCE4;color:#1F2A30;background:#fff}
+.lv .foot{position:absolute;right:48px;bottom:18px;color:#8A96A3;font-size:14px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5 5.5-6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><path d="M12 16.5v.01"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.5v.01"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></symbol>
+</svg>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="#" aria-label="Credit Passport, start over" onclick="return false"><svg width="26" height="33" viewBox="0 0 44 56" aria-hidden="true"><rect width="44" height="56" rx="7" fill="#173B45"/><path d="M7.5 4v48" stroke="#2E5A63" stroke-width="1.5"/><circle cx="25" cy="23" r="11" fill="none" stroke="#E8EEEA" stroke-width="3.5"/><path d="M19.5 23.5l4.5 4.5 9.5-12" fill="none" stroke="#F59E5B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 40h21M16 46h13" stroke="#4F7A83" stroke-width="2.5" stroke-linecap="round"/></svg><span>Credit Passport</span></a>
+    <ol class="steps" id="steps" aria-label="Demo steps"></ol>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- 1 APPLICANT -->
+  <section class="screen" id="s1">
+    <div class="hero">
+      <div class="hero-copy">
+        <h1>Lenders can't price risk they can't see.</h1>
+        <p class="lead">When someone's history is overseas, or their rent goes to a housemate instead of an agent, lenders can't check it. So the applicant gets treated as higher risk, or their file waits in manual review.</p>
+        <p class="tag">Unverified isn't the same as risky. Credit Passport measures the actual risk.</p>
+        <div class="actions"><button class="btn" data-go="2">Connect Priya's accounts <svg class="ico"><use href="#i-arrow"/></svg></button></div>
+      </div>
+      <div class="person" aria-label="Applicant">
+        <div class="who"><div class="photo" aria-hidden="true">PS</div><div><b>Priya Sharma</b><span>Registered nurse · permanent resident</span></div></div>
+        <dl class="facts">
+          <dt>Moved</dt><dd>Mumbai to Melbourne, March 2025</dd>
+          <dt>Housing</dt><dd>Room in a share house, pays the main tenant</dd>
+          <dt>In India</dt><dd>4+ years of rent and salary history</dd>
+          <dt>Applying for</dt><dd>Home loan on a $550,000 apartment</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:1.4rem">What the lender can verify today</h2>
+      <ul class="clean verify" style="margin-top:12px">
+        <li data-s="low"><h3>Payslips</h3><span class="chip low"><svg class="ico" style="width:16px;height:16px"><use href="#i-check"/></svg>Verified</span><p>Her salary from Northside Hospital checks out.</p></li>
+        <li data-s="moderate"><h3>Australian bank history</h3><span class="chip moderate"><svg class="ico" style="width:16px;height:16px"><use href="#i-alert"/></svg>Only 18 months</span><p>Short, and nobody reads it end to end.</p></li>
+        <li data-s="high"><h3>Rent</h3><span class="chip high"><svg class="ico" style="width:16px;height:16px"><use href="#i-x"/></svg>No ledger</span><p>Paid privately to a housemate, so there's no agent or tenancy record.</p></li>
+        <li data-s="high"><h3>History in India</h3><span class="chip high"><svg class="ico" style="width:16px;height:16px"><use href="#i-x"/></svg>Can't be checked</span><p>Four years of rent and salary the lender has no way to see.</p></li>
+        <li data-s="grey"><h3>Credit file</h3><span class="chip grey"><svg class="ico" style="width:16px;height:16px"><use href="#i-info"/></svg>Thin</span><p>One input, rarely the deciding one.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 2 CONNECT -->
+  <section class="screen" id="s2" hidden>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <h2>Connect Priya's accounts</h2>
+      <p class="muted" style="max-width:62ch">Banks send the data straight to Credit Passport, read-only. Priya can't edit it, and she can stop sharing at any time.</p>
+    </div>
+    <div class="providers">
+      <div class="card provider">
+        <div class="top"><h3>Australian accounts</h3><span class="chip mock">Basiq · mocked</span></div>
+        <div class="bankrow"><span class="bl" style="background:#2F5DA8">HB</span><div><b>Harbourside Bank</b><div class="muted small">Consumer Data Right (open banking)</div></div></div>
+        <div class="accts num"><span>Everyday ••4471</span><span>Goal Saver ••9902</span></div>
+        <div id="au-status"><button class="btn" id="au-connect">Connect Harbourside Bank</button></div>
+      </div>
+      <div class="card provider">
+        <div class="top"><h3>Overseas accounts</h3><div class="actions" style="gap:6px"><span class="chip violet">Optional</span><span class="chip mock">Yodlee · mocked</span></div></div>
+        <div class="bankrow"><span class="bl" style="background:#B4532A">SBI</span><div><b>State Bank of India</b><div class="muted small">India's Account Aggregator network</div></div></div>
+        <div class="accts num"><span>Savings ••2208</span><span class="muted">Jan 2021 – Feb 2025, in rupees</span></div>
+        <div id="in-status"><button class="btn ghost" id="in-connect">Connect State Bank of India</button></div>
+      </div>
+    </div>
+    <p class="hint"><svg class="ico"><use href="#i-spark"/></svg>Try skipping India and see how the risk report changes.</p>
+    <div class="actions"><button class="btn" id="to-analyse" disabled>Analyse transactions</button><button class="btn ghost" data-go="1">Back</button></div>
+  </section>
+
+  <!-- 3 ANALYSE -->
+  <section class="screen" id="s3" hidden>
+    <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <h2 id="an-title" class="num">Reading transactions</h2>
+        <p class="muted" style="max-width:66ch">Payees are grouped by name, amount and note, with account numbers removed. Only those summaries go to the AI. Plain code does all the counting.</p>
+      </div>
+      <span class="chip moderate" id="src-badge" title="The AI step is using a saved response">Offline backup</span>
+    </div>
+    <div class="bar" aria-hidden="true"><div id="an-bar"></div></div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Payee group</th><th>Pattern</th><th>AI decision</th><th>Reason</th></tr></thead>
+        <tbody id="an-rows"></tbody>
+      </table>
+    </div>
+    <p class="muted small">The three highlighted rows all go to the same housemate. The AI separates rent from a bill share and a one-off personal payment.</p>
+    <div class="actions"><button class="btn" id="to-report" disabled>See the risk report</button></div>
+  </section>
+
+  <!-- 4 REPORT -->
+  <section class="screen" id="s4" hidden>
+    <div class="rhead">
+      <div class="rid">
+        <div class="who"><div class="photo" aria-hidden="true">PS</div><div><h2 style="color:#fff;font-size:1.8rem">Priya Sharma</h2><span style="color:var(--on-dark)">Home loan applicant · 24 Sep 2026</span></div></div>
+        <p class="rsum" id="summary"></p>
+        <div class="srcs" id="r-srcs"></div>
+      </div>
+      <div class="scorebox" id="overall" aria-live="polite">
+        <div class="scoretop"><span class="scorenum num" id="sc-num"></span><span class="scoreof">out of 100<br>risk score</span></div>
+        <b class="rating" id="sc-rating"></b>
+        <div class="scale" aria-hidden="true"><span class="marker" id="sc-marker"></span></div>
+        <div class="scale-l"><span>Lower risk</span><span>Higher risk</span></div>
+      </div>
+    </div>
+
+    <div class="card scenario">
+      <div class="scen-head"><h3>Loan scenario</h3><span class="chip mock">Serviceability via Tiimely · mocked</span></div>
+      <div class="sliders">
+        <div class="slider"><label for="sl-price">Property price <output id="o-price" for="sl-price"></output></label><input type="range" id="sl-price" min="300000" max="900000" step="5000" value="550000"></div>
+        <div class="slider"><label for="sl-dep">Deposit <output id="o-dep" for="sl-dep"></output></label><input type="range" id="sl-dep" min="20000" max="200000" step="5000" value="110000"></div>
+        <div class="slider"><label for="sl-rate">Interest rate <output id="o-rate" for="sl-rate"></output></label><input type="range" id="sl-rate" min="4" max="9" step="0.1" value="6"></div>
+      </div>
+      <p class="scen-out num" id="kv"></p>
+      <div class="lever-line"><p id="lever-text"></p><button class="btn ghost" id="lever-btn">Try this price</button></div>
+    </div>
+
+    <div class="fsec" id="attn-sec">
+      <h2 class="fh" id="attn-title">Needs attention</h2>
+      <div class="factors" id="factors-attn"></div>
+    </div>
+    <div class="fsec">
+      <h2 class="fh" id="good-title">Looking good</h2>
+      <div class="goodlist" id="factors-good"></div>
+      <p class="muted small">Tap any factor to see the evidence. Thresholds are illustrative, for this prototype.</p>
+    </div>
+    <div class="actions"><button class="btn" data-go="5">Send to lender <svg class="ico"><use href="#i-arrow"/></svg></button></div>
+  </section>
+
+  <!-- 5 SEND -->
+  <section class="screen" id="s5" hidden>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <h2>Send the risk profile to the lender</h2>
+      <p class="muted" style="max-width:62ch">Priya approves the share. The lender's decision system receives the profile, not her bank statements.</p>
+    </div>
+    <div class="flow" aria-label="How the data flows">
+      <div class="col">
+        <div class="node"><b>Basiq</b><span class="muted small">Harbourside Bank, Australia</span></div>
+        <div class="node" id="flow-in"><b>Yodlee</b><span class="muted small">State Bank of India</span></div>
+      </div>
+      <div class="arrow"><svg class="ico" style="width:28px;height:28px"><use href="#i-arrow"/></svg></div>
+      <div class="node core"><b style="font-size:1.2rem">Credit Passport</b><span>Labels payees, measures 8 risk factors</span></div>
+      <div class="arrow"><svg class="ico" style="width:28px;height:28px"><use href="#i-arrow"/></svg></div>
+      <div class="node"><b>Tiimely</b><span class="muted small">Southgate Home Loans' decision system</span></div>
+    </div>
+    <div class="two">
+      <div class="card" style="display:flex;flex-direction:column;gap:12px">
+        <h3>What the lender receives</h3>
+        <ul class="clean list" id="receives"></ul>
+        <details><summary>See the data sent</summary><pre class="json" id="payload"></pre></details>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:12px">
+        <h3>What stays private</h3>
+        <ul class="clean list">
+          <li><svg class="ico" style="color:var(--primary)"><use href="#i-lock"/></svg><span>Everyday spending is never shared, only the totals used in the factors.</span></li>
+          <li><svg class="ico" style="color:var(--primary)"><use href="#i-lock"/></svg><span>The housemate's name is hidden everywhere.</span></li>
+          <li><svg class="ico" style="color:var(--primary)"><use href="#i-lock"/></svg><span>Raw bank data is deleted once the profile is built.</span></li>
+          <li><svg class="ico" style="color:var(--primary)"><use href="#i-lock"/></svg><span>Priya approves every share, and can stop it.</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <div><h3>What your lender sees</h3><p class="muted small">A preview of Priya's profile inside the lender's review screen, using the scenario you set.</p></div>
+      <div class="lvwrap" id="lvwrap"><div class="lv" id="lv"></div></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="send">Send risk profile to lender</button>
+      <span class="sent" id="sent" hidden><svg class="ico"><use href="#i-check"/></svg><span id="sent-text"></span></span>
+      <button class="btn ghost" id="restart" style="margin-left:auto">Start over</button>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <p>Prototype with made-up people, banks and data. Integrations are mocked. General information only, not financial advice.</p>
+    <p>Integration concept with mocked connections. Not affiliated with Basiq, Yodlee or Tiimely.</p>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+/* ===== Credit Passport engine: mock data, grouping, labels, risk ===== */
+var CP = (function(){
+const DAY = 864e5;
+const U = (y,m,d) => Date.UTC(y,m-1,d);
+const iso = t => new Date(t).toISOString().slice(0,10);
+const START = U(2025,4,1), TODAY = U(2026,9,24);
+const r2 = x => Math.round(x*100)/100;
+const INR_AUD = 0.018;
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fdate = t => { const d=new Date(t); return d.getUTCDate()+' '+MON[d.getUTCMonth()]+' '+d.getUTCFullYear(); };
+const fmonth = t => { const d=new Date(t); return MON[d.getUTCMonth()]+' '+d.getUTCFullYear(); };
+const ym = t => { const d=new Date(t); return d.getUTCFullYear()*12+d.getUTCMonth(); };
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+
+/* ---------- Mock data: basiq.ts connectAustralianAccounts() ---------- */
+function generateAU(){
+  const R = mulberry32(20260924);
+  const raw = [];
+  const add = (t,description,amount,account,note) => { if(t<START||t>TODAY) return; raw.push({t,description,note:note||'',amount:r2(amount),account}); };
+  for(let t=U(2025,4,3); t<=TODAY; t+=14*DAY) add(t,'NORTHSIDE HOSPITAL PAYROLL',3400,'everyday');
+  const notes = ['rent','room 2','','rent','wk N','rent :)'];
+  let k=0;
+  for(let t=U(2025,4,7); t<=TODAY; t+=7*DAY,k++){ const n=notes[k%notes.length].replace('N',String(k+1)); add(t,'PAYID A NGUYEN',-260,'everyday',n); }
+  for(let y=2025,m=4; y<2026||(y===2026&&m<=9); m===12?(y++,m=1):m++){
+    const winter = m>=5&&m<=9;
+    add(U(y,m,12),'PAYID A NGUYEN',-(55+R()*35),'everyday',winter?'gas + elec':'elec');
+    add(U(y,m,5),'FASTNET INTERNET',-35,'everyday');
+    add(U(y,m,(y===2025&&m===5)?24:20),'SPARK MOBILE',-45,'everyday');
+    if(!(y===2025&&m===4)){
+      add(U(y,m,1),'TRANSFER TO GOAL SAVER',-2000,'everyday');
+      add(U(y,m,1),'TRANSFER FROM EVERYDAY',2000,'saver');
+      add(U(y,m,3),'TRANSFER TO INDIA - FAMILY',-600,'everyday');
+    }
+  }
+  add(U(2025,7,25),'PAYID A NGUYEN',-85,'everyday','concert tix');
+  add(U(2025,4,10),'INTL TRANSFER IN - SBI MUMBAI',65000,'everyday');
+  add(U(2025,4,11),'TRANSFER TO GOAL SAVER',-65000,'everyday');
+  add(U(2025,4,11),'TRANSFER FROM EVERYDAY',65000,'saver');
+  for(let j=0;j<4;j++) add(U(2025,8,4)+j*14*DAY,'NOVAPAY INSTALMENT',-62.5,'everyday');
+  const shops = [['COLES',14,111,3],['WOOLWORTHS',14,111,3],['ALDI',12,90,2],['MYKI TOP UP',10,50,2],['CAFE ROSSO',6,18,3],['CHEMIST WAREHOUSE',8,60,1],['UBER EATS',18,55,2],['KMART',10,90,1],['BUNNINGS',8,95,1]];
+  const wsum = shops.reduce((a,s)=>a+s[3],0);
+  for(let t=START; t<=TODAY; t+=DAY){
+    const n = Math.floor(R()*4);
+    for(let i=0;i<n;i++){
+      let p=R()*wsum, s=shops[0];
+      for(const x of shops){ if(p<x[3]){s=x;break;} p-=x[3]; }
+      add(t, s[0], -(s[1]+R()*(s[2]-s[1])), 'everyday');
+    }
+  }
+  for(let y=2025,m=4; y<2026||(y===2026&&m<=8); m===12?(y++,m=1):m++){
+    const end = U(y,m+1,1)-DAY;
+    const bal = raw.filter(x=>x.account==='saver'&&x.t<=end).reduce((a,x)=>a+x.amount,0);
+    add(end,'GOAL SAVER INTEREST',bal*0.04/12,'saver');
+  }
+  raw.sort((a,b)=>a.t-b.t || (a.account<b.account?-1:1) || b.amount-a.amount);
+  return raw.map((x,i)=>({id:'AU'+String(i+1).padStart(4,'0'),date:iso(x.t),...x}));
+}
+
+/* ---------- Mock data: yodlee.ts connectOverseasAccounts() ---------- */
+function generateIN(){
+  const out=[];
+  for(let y=2021,m=1; y<2025||(y===2025&&m<=2); m===12?(y++,m=1):m++){
+    out.push({t:U(y,m,1),description:'SALARY - LOTUS HOSPITAL',note:'',amountINR:85000,account:'sbi'});
+    out.push({t:U(y,m,5),description:'NEFT RENT - K MEHTA',note:'',amountINR:-18000,account:'sbi'});
+  }
+  return out.map((x,i)=>({id:'IN'+String(i+1).padStart(4,'0'),date:iso(x.t),...x,amount:r2(x.amountINR*INR_AUD)}));
+}
+
+/* ---------- Grouping (what gets sent to the AI) ---------- */
+const SHOPS = ['COLES','WOOLWORTHS','ALDI','KMART','BUNNINGS','CHEMIST WAREHOUSE'];
+const OUT_AND_ABOUT = ['MYKI TOP UP','CAFE ROSSO','UBER EATS'];
+function groupKey(t){
+  if(t.description==='PAYID A NGUYEN'){
+    if(/elec|gas/i.test(t.note)) return 'PAYID A NGUYEN | energy notes';
+    if(t.amount===-260) return 'PAYID A NGUYEN | rent-like notes';
+    return 'PAYID A NGUYEN | "'+t.note+'"';
+  }
+  if(SHOPS.includes(t.description)) return 'Supermarkets and shops (6 merchants)';
+  if(OUT_AND_ABOUT.includes(t.description)) return 'Transport, cafes and delivery (3 merchants)';
+  if(t.description==='GOAL SAVER INTEREST') return null;
+  if(t.description==='TRANSFER FROM EVERYDAY') return null;
+  return t.description;
+}
+function buildGroups(tx){
+  const map = new Map();
+  for(const t of tx){ const k=groupKey(t); if(!k) continue; if(!map.has(k)) map.set(k,[]); map.get(k).push(t); }
+  const groups=[];
+  for(const [k,list] of map){
+    const amts=list.map(t=>Math.abs(t.amount)).sort((a,b)=>a-b);
+    const gaps=[]; for(let i=1;i<list.length;i++) gaps.push((list[i].t-list[i-1].t)/DAY);
+    gaps.sort((a,b)=>a-b);
+    const gap = gaps.length?gaps[Math.floor(gaps.length/2)]:null;
+    const interval = gap===null?'once':gap<=1?'daily':gap<=8?'weekly':gap<=15?'fortnightly':gap<=32?'monthly':'irregular';
+    const notes=[...new Set(list.map(t=>t.note).filter(Boolean))].slice(0,4);
+    const dir = list[0].amount>0?'in':'out';
+    groups.push({group:k,count:list.length,typical:amts[Math.floor(amts.length/2)],min:amts[0],max:amts[amts.length-1],interval,notes,dir,ids:list.map(t=>t.id),india:list[0].account==='sbi'});
+  }
+  return groups;
+}
+
+/* ---------- Saved AI response (fallback-labels.json) ---------- */
+const FALLBACK_LABELS = {
+  'NORTHSIDE HOSPITAL PAYROLL':['salary','Same amount every second Thursday from a hospital payroll'],
+  'PAYID A NGUYEN | rent-like notes':['rent','Same person, same $260, every week. Notes vary but the pattern is rent'],
+  'PAYID A NGUYEN | energy notes':['bill_share','Same person, but monthly, amount varies and notes say elec or gas, so a share of household energy bills'],
+  'PAYID A NGUYEN | "concert tix"':['one_off_personal','A single payment to the same person with a note about concert tickets. Personal, not rent'],
+  'SPARK MOBILE':['bill','Same amount every month to a mobile provider'],
+  'FASTNET INTERNET':['bill','Same amount every month to an internet provider'],
+  'INTL TRANSFER IN - SBI MUMBAI':['own_funds_overseas','One large transfer from her own bank in India, moved straight into savings'],
+  'TRANSFER TO GOAL SAVER':['savings_transfer','Regular transfers into her own savings account'],
+  'TRANSFER TO INDIA - FAMILY':['family_support','Fixed monthly transfer to family overseas. An ongoing commitment'],
+  'NOVAPAY INSTALMENT':['bnpl','Four equal payments two weeks apart to a pay-later provider'],
+  'Supermarkets and shops (6 merchants)':['everyday','Groceries and household shopping'],
+  'Transport, cafes and delivery (3 merchants)':['everyday','Transport top-ups, coffee and food delivery'],
+  'SALARY - LOTUS HOSPITAL':['salary','Same amount on the 1st of every month from a hospital in India'],
+  'NEFT RENT - K MEHTA':['rent','Same amount to one landlord on the 5th of every month, marked as rent']
+};
+
+/* ---------- Risk engine (lib/risk.ts): plain code, no AI ---------- */
+function repayment(loan, ratePct, years){ const r=ratePct/100/12, n=years*12; return r===0?loan/n:loan*r/(1-Math.pow(1+r,-n)); }
+const LEVEL_ORDER={low:0,moderate:1,high:2};
+
+function analyse(au, india, labels){
+  const all = india ? au.concat(india) : au;
+  const catOf = new Map();
+  for(const t of all){ const k=groupKey(t); if(k&&labels[k]) catOf.set(t.id,labels[k][0]); }
+  for(const t of all){ if(t.description==='GOAL SAVER INTEREST') catOf.set(t.id,'interest'); if(t.description==='TRANSFER FROM EVERYDAY') catOf.set(t.id,'savings_in'); }
+  const by = (c,src) => (src||au).filter(t=>catOf.get(t.id)===c);
+  const everyday = au.filter(t=>t.account==='everyday');
+  const saver = au.filter(t=>t.account==='saver');
+  // balances
+  let bal=1200, i=0, minBal=Infinity, overdrawn=0; const dayEnd=[];
+  for(let d=START; d<=TODAY; d+=DAY){ while(i<everyday.length&&everyday[i].t<=d){bal+=everyday[i].amount;i++;} dayEnd.push([d,bal]); if(bal<0) overdrawn++; }
+  const everydayBal = bal;
+  const saverBal = saver.reduce((a,t)=>a+t.amount,0);
+  const pays = by('salary');
+  let lowBeforePay={v:Infinity,t:null};
+  for(const p of pays){ const prev=dayEnd.find(x=>x[0]===p.t-DAY); if(prev&&prev[1]<lowBeforePay.v) lowBeforePay={v:prev[1],t:prev[0]}; }
+  // monthly window May 2025 – Aug 2026
+  const m0=ym(U(2025,5,1)), m1=ym(U(2026,8,1)), months=m1-m0+1;
+  const inWin = t => ym(t.t)>=m0 && ym(t.t)<=m1;
+  const sumAbs = list => list.filter(inWin).reduce((a,t)=>a-t.amount,0);
+  const rentAU = by('rent');
+  const savingsOut = by('savings_transfer').filter(t=>t.amount<0 && t.amount!==-65000);
+  const capacity = (sumAbs(rentAU)+sumAbs(savingsOut))/months;
+  const everydaySpend = sumAbs(by('everyday'))/months;
+  const billsMonthly = (sumAbs(by('bill'))+sumAbs(by('bill_share')))/months;
+  const family = by('family_support');
+  const familyMonthly = sumAbs(family)/months;
+  const living = everydaySpend+billsMonthly+familyMonthly;
+  const takeHome = pays.length ? pays[Math.floor(pays.length/2)].amount*26/12 : 0;
+  // bills lateness
+  const bills = by('bill').concat(by('bill_share'));
+  const expected={};
+  for(const t of bills){ const k=groupKey(t); (expected[k]=expected[k]||{})[new Date(t.t).getUTCDate()]=((expected[k]||{})[new Date(t.t).getUTCDate()]||0)+1; }
+  const expDay={}; for(const k in expected){ expDay[k]=+Object.keys(expected[k]).sort((a,b)=>expected[k][b]-expected[k][a])[0]; }
+  const lateBills = bills.filter(t=>new Date(t.t).getUTCDate()>expDay[groupKey(t)]).map(t=>({t,days:new Date(t.t).getUTCDate()-expDay[groupKey(t)]}));
+  // rent conduct
+  let missedWeeks=0; for(let j=1;j<rentAU.length;j++) if(rentAU[j].t-rentAU[j-1].t>7*DAY) missedWeeks++;
+  if(rentAU.length && TODAY-rentAU[rentAU.length-1].t>7*DAY) missedWeeks++;
+  const rentIN = india ? by('rent',india) : [];
+  const payIN = india ? by('salary',india) : [];
+  const bnpl = by('bnpl');
+  const gambling = by('gambling');
+  return {au,india,catOf,everydayBal,saverBal,minBal,overdrawn,lowBeforePay,capacity,everydaySpend,billsMonthly,familyMonthly,living,takeHome,pays,rentAU,rentIN,payIN,missedWeeks,bills,lateBills,bnpl,family,gambling,savingsOut,months};
+}
+
+function risk(A, sc){
+  const loan = Math.max(0, sc.price - sc.deposit);
+  const costs = sc.price*0.02;
+  const assessRate = sc.rate+3;
+  const repAssess = repayment(loan, assessRate, 30);
+  const repActual = repayment(loan, sc.rate, 30);
+  const F = [];
+  const lvl3 = (v,a,b) => v<a?'low':v<=b?'moderate':'high';
+  // 1 serviceability
+  const sRatio = A.takeHome ? repAssess/A.takeHome : 1;
+  F.push({key:'service',name:'Serviceability at the assessment rate',level: sRatio<0.40?'low':sRatio<=0.50?'moderate':'high',
+    finding:`Repayments would be ${Math.round(sRatio*100)}% of take-home pay at ${assessRate.toFixed(1)}%`,
+    why:'Lenders test repayments at about 3 percentage points above the actual rate. Under 40% of take-home pay is comfortable; over 50% is stretched.',
+    table:{head:['Item','Amount'],rows:[['Loan amount',$(loan)],['Assessment rate',assessRate.toFixed(2)+'%'],['Monthly repayment at assessment rate',$(repAssess)],['Monthly take-home pay (from '+A.pays.length+' pays)',$(A.takeHome)],['Share of take-home pay',Math.round(sRatio*100)+'%']]},
+    evidenceIds:A.pays.map(t=>t.id)});
+  // 2 payment shock
+  const shock = repActual/A.capacity - 1;
+  F.push({key:'shock',name:'Payment shock',level: shock<=0.05?'low':shock<=0.20?'moderate':'high',
+    finding: shock<=0 ? `New repayment of ${$(repActual)} is ${Math.round(-shock*100)}% below what she already pays each month` : `New repayment of ${$(repActual)} is ${Math.round(shock*100)}% above what she already pays each month`,
+    why:'Rent plus regular saving is proven monthly capacity. If the new repayment is close to it, the change is manageable.',
+    table:{head:['Measure','Monthly'],rows:[['Rent paid (average, May 2025 – Aug 2026)',$(A.capacity-(A.savingsOut.filter(t=>ym(t.t)>=ym(U(2025,5,1))&&ym(t.t)<=ym(U(2026,8,1))).reduce((a,t)=>a-t.amount,0)/A.months))],['Saved (average)',$(A.savingsOut.filter(t=>ym(t.t)>=ym(U(2025,5,1))&&ym(t.t)<=ym(U(2026,8,1))).reduce((a,t)=>a-t.amount,0)/A.months)],['Proven monthly capacity',$(A.capacity)],['Repayment at '+sc.rate.toFixed(2)+'%',$(repActual)]]},
+    evidenceIds:A.rentAU.map(t=>t.id).concat(A.savingsOut.map(t=>t.id))});
+  // 3 buffer
+  const left = A.everydayBal + A.saverBal - sc.deposit - costs;
+  const bufMonths = left / A.living;
+  F.push({key:'buffer',name:'Cash buffer after settlement',level: bufMonths>=6?'low':bufMonths>=3?'moderate':'high',
+    finding: left<=0 ? `Savings don't cover the deposit and purchase costs` : `${bufMonths.toFixed(1)} months of living costs left after the deposit and costs`,
+    why:'Money left over after buying protects against job loss or surprise costs. Six months or more is strong; under three is thin.',
+    table:{head:['Item','Amount'],rows:[['Everyday account balance',$(A.everydayBal)],['Goal Saver balance',$(A.saverBal)],['Less deposit','−'+$(sc.deposit)],['Less purchase costs (2%)','−'+$(costs)],['Left after settlement',$(left)],['Monthly living costs (spending, bills, family support)',$(A.living)],['Lowest balance before a payday',$(A.lowBeforePay.v)+' on '+fdate(A.lowBeforePay.t)]]},
+    evidenceIds:[]});
+  // 4 income
+  const inGap = A.pays.slice(1).some((p,j)=>p.t-A.pays[j].t>14*DAY);
+  F.push({key:'income',name:'Income stability',level: inGap?'moderate':'low',
+    finding: `${A.pays.length} of ${A.pays.length} fortnightly pays, same employer`+(A.payIN.length?`, plus ${A.payIN.length} months of salary in India`:''),
+    why:'Regular pay from one employer with no gaps is stable. It is a single income source, so there is no second earner to fall back on.',
+    rows:A.pays.map(t=>[fdate(t.t),'Northside Hospital payroll',$(t.amount),'Received']).concat(A.payIN.map(t=>[fdate(t.t),'Lotus Hospital salary (India)','₹'+t.amountINR.toLocaleString('en-IN')+' ≈ '+$(t.amount),'Received'])),
+    evidenceIds:A.pays.map(t=>t.id).concat(A.payIN.map(t=>t.id))});
+  // 5 housing
+  F.push({key:'housing',name:'Housing payment conduct',level: A.missedWeeks?'moderate':'low',
+    finding: `${A.rentAU.length-A.missedWeeks} of ${A.rentAU.length} weeks of rent paid in Australia`+(A.rentIN.length?`, and ${A.rentIN.length} of ${A.rentIN.length} months in India`:''),
+    why:'Paying rent on time is the closest match to paying a mortgage. Private rent to a housemate has no official ledger, so the bank record is the proof.',
+    rows:A.rentAU.map(t=>[fdate(t.t),'Housemate (name hidden)'+(t.note?' · "'+t.note+'"':''),$(-t.amount),'Paid']).concat(A.rentIN.map(t=>[fdate(t.t),'Landlord, Mumbai (name hidden)','₹18,000 ≈ '+$(-t.amount),'Paid'])),
+    evidenceIds:A.rentAU.map(t=>t.id).concat(A.rentIN.map(t=>t.id))});
+  // 6 debts
+  const bnplTotal = A.bnpl.reduce((a,t)=>a-t.amount,0);
+  F.push({key:'debts',name:'Existing debts and commitments',level:'low',
+    finding:`No loans or credit cards. One pay-later plan (${$(bnplTotal)}) fully repaid. ${$(A.familyMonthly)} a month sent to family, counted as an expense`,
+    why:'Existing debts reduce what someone can borrow. Ongoing commitments like family support are counted in living costs.',
+    rows:A.bnpl.map(t=>[fdate(t.t),'NovaPay instalment',$(-t.amount),'Paid']).concat(A.family.map(t=>[fdate(t.t),'Transfer to family in India',$(-t.amount),'Commitment'])),
+    evidenceIds:A.bnpl.map(t=>t.id).concat(A.family.map(t=>t.id))});
+  // 7 conduct
+  F.push({key:'conduct',name:'Account conduct',level: (A.lateBills.length>2||A.overdrawn>0||A.gambling.length>0)?'moderate':'low',
+    finding:`${A.bills.length-A.lateBills.length} of ${A.bills.length} bills on time, never overdrawn, no gambling`,
+    why:'Late bills, overdrawn days and gambling are early warning signs. One bill a few days late is minor.',
+    rows:A.bills.map(t=>{const l=A.lateBills.find(x=>x.t.id===t.id); return [fdate(t.t), t.description==='PAYID A NGUYEN'?'Energy bill share (housemate)':t.description==='SPARK MOBILE'?'Spark Mobile':'Fastnet Internet', $(-t.amount), l?l.days+' days late':'On time', !!l];}),
+    evidenceIds:A.bills.map(t=>t.id)});
+  // 8 history
+  F.push({key:'history',name:'History length and verification',level: A.india?'low':'moderate',
+    finding: A.india ? '5.7 years of bank-sourced history (India and Australia)' : 'Only 18 months of Australian history. Earlier history in India not connected',
+    why:'A longer verified history gives more evidence. Data pulled straight from banks is stronger than uploaded statements.',
+    table:{head:['Source','Period','How it was verified'],rows:[['Harbourside Bank, Australia','Apr 2025 – Sep 2026','Consumer Data Right via Basiq (mocked)']].concat(A.india?[['State Bank of India','Jan 2021 – Feb 2025','Account Aggregator via Yodlee (mocked)']]:[['State Bank of India','Not connected','—']])},
+    evidenceIds:[]});
+  const counts={low:0,moderate:0,high:0}; F.forEach(f=>counts[f.level]++);
+  // score: 0 (lowest risk) to 100 (highest), weighted from each factor's underlying measure
+  const cl = x => Math.max(0,Math.min(1,x));
+  const parts = {
+    service:[0.25, cl((sRatio-0.30)/0.30)],
+    shock:[0.15, cl((shock+0.20)/0.60)],
+    buffer:[0.20, left<=0?1:cl((12-bufMonths)/12)],
+    income:[0.10, inGap?0.5:0.1],
+    housing:[0.10, A.rentAU.length?cl(A.missedWeeks/A.rentAU.length*4):0.5],
+    debts:[0.05, 0.1],
+    conduct:[0.05, cl(A.lateBills.length*0.05+A.overdrawn*0.1+A.gambling.length*0.2)],
+    history:[0.10, A.india?0.1:0.55]
+  };
+  let score=0; for(const k in parts) score+=parts[k][0]*parts[k][1];
+  score=Math.round(score*100);
+  const overall = counts.high?'Higher risk':counts.moderate>=2?'Moderate risk':counts.moderate===1?'Low–moderate risk':'Low risk';
+  // lever
+  const maxRep = 0.40*A.takeHome;
+  const r=(assessRate)/100/12, n=360;
+  const maxLoan = maxRep*(1-Math.pow(1+r,-n))/r;
+  return {factors:F,counts,overall,score,loan,costs,repAssess,repActual,assessRate,maxLoan,maxPrice:maxLoan+sc.deposit,sRatio,bufMonths};
+}
+
+function summary(A, R, sc){
+  const mods = R.factors.filter(f=>f.level!=='low').map(f=>f.name.toLowerCase());
+  const strengths = [];
+  strengths.push(`${A.rentAU.length} of ${A.rentAU.length} weeks of rent paid`);
+  strengths.push(`${A.pays.length} pays in a row`);
+  strengths.push('never overdrawn');
+  let s = `Priya is rated ${R.overall.toLowerCase()} for a ${$(R.loan)} loan on a ${$(sc.price)} property. `;
+  s += mods.length ? `The main drivers are ${listJoin(mods)}. ` : 'No factor is above low. ';
+  s += `Strengths: ${listJoin(strengths)}${A.india?', with 5.7 years of verified history':''}. `;
+  s += R.loan>R.maxLoan ? `Watch serviceability: a loan up to about ${$(Math.floor(R.maxLoan/1000)*1000)} keeps repayments under 40% at the assessment rate.` : `Repayments stay under 40% of take-home pay at the assessment rate.`;
+  return s;
+}
+function listJoin(a){ return a.length<=1?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1]; }
+function $(n){ return (n<0?'−':'')+'$'+Math.round(Math.abs(n)).toLocaleString('en-AU'); }
+
+return {generateAU,generateIN,buildGroups,FALLBACK_LABELS,analyse,risk,summary,repayment,fdate,fmonth,$,INR_AUD};
+})();
+if(typeof module!=='undefined') module.exports=CP;
+(function(){
+const $q = s => document.querySelector(s);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money = CP.$;
+const wait = ms => new Promise(r=>setTimeout(r, reduced?Math.min(ms,80):ms));
+
+/* ---------- Integrations (mocked adapters) ---------- */
+const basiq = {
+  // Real version: Basiq Consumer Data Right consent flow, then GET /users/{id}/transactions for the consented accounts.
+  async connectAustralianAccounts(){ await wait(900); return {provider:'Basiq',bank:'Harbourside Bank',accounts:['Everyday ••4471','Goal Saver ••9902'],transactions:CP.generateAU()}; }
+};
+const yodlee = {
+  // Real version: Yodlee FastLink via India's Account Aggregator network, consent artefact, then fetch FI data for SBI Savings ••2208.
+  async connectOverseasAccounts(){ await wait(1100); return {provider:'Yodlee',bank:'State Bank of India',accounts:['Savings ••2208'],currency:'INR',transactions:CP.generateIN()}; }
+};
+const tiimely = {
+  // Real version: the lender's serviceability calculator. Here the calculation runs locally in the risk engine.
+  checkServiceability(scenario, financials){ return CP.risk(financials, scenario); },
+  // Real version: POST the risk profile into the lender's decisioning system.
+  async sendRiskProfile(profile){ await wait(900); return {status:'received',lender:'Southgate Home Loans',reference:'TMLY-'+profile.applicant.ref.slice(3)+'-0924'}; }
+};
+
+/* ---------- State ---------- */
+const S = { step:1, reached:1, au:null, india:null, A:null, R:null, sc:{price:550000,deposit:110000,rate:6}, run:0, lastOverall:null };
+const STEPS = ['Applicant','Connect','Analyse','Risk report','Send to lender'];
+function renderSteps(){
+  $q('#steps').innerHTML = STEPS.map((s,i)=>{const n=i+1,cur=n===S.step,done=n<S.reached&&!cur;
+    return `<li><button data-step="${n}" ${cur?'aria-current="step"':''} class="${done?'done':''}" ${(n>S.reached||n===3)&&!cur?'disabled':''}><i>${n}</i><span>${s}</span></button></li>`;}).join('');
+}
+function go(n){
+  if(n>=3 && !S.au){ n=2; }
+  if(n===4 && !S.A){ n=3; }
+  S.step=n; S.reached=Math.max(S.reached,n);
+  for(let i=1;i<=5;i++) $q('#s'+i).hidden = i!==n;
+  renderSteps(); window.scrollTo({top:0,behavior:'auto'});
+  if(n===3) startAnalyse();
+  if(n===4) renderReport(false);
+  if(n===5) renderSend();
+}
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]'); if(g){go(+g.dataset.go);return;}
+  const s=e.target.closest('[data-step]'); if(s&&!s.disabled) go(+s.dataset.step);
+});
+const toast = msg => { const t=$q('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast.h); toast.h=setTimeout(()=>t.classList.remove('show'),2400); };
+
+/* ---------- 2 Connect ---------- */
+$q('#au-connect').addEventListener('click', async ()=>{
+  $q('#au-status').innerHTML='<div class="status muted">Connecting to Harbourside Bank…</div>';
+  const r = await basiq.connectAustralianAccounts(); S.au=r.transactions; S.A=null;
+  $q('#au-status').innerHTML=`<div class="status ok"><svg class="ico"><use href="#i-check"/></svg>Connected · ${S.au.length.toLocaleString('en-AU')} transactions</div>`;
+  $q('#to-analyse').disabled=false;
+});
+function inButton(){ $q('#in-status').innerHTML='<button class="btn ghost" id="in-connect">Connect State Bank of India</button>'; $q('#in-connect').addEventListener('click', connectIndia); }
+async function connectIndia(){
+  $q('#in-status').innerHTML='<div class="status muted">Connecting through Account Aggregator…</div>';
+  const r = await yodlee.connectOverseasAccounts(); S.india=r.transactions; S.A=null;
+  $q('#in-status').innerHTML=`<div class="status ok"><svg class="ico"><use href="#i-check"/></svg>Connected · ${S.india.length} transactions <button class="btn ghost" id="in-remove" style="margin-left:auto;min-height:44px">Disconnect</button></div>`;
+  $q('#in-remove').addEventListener('click',()=>{S.india=null;S.A=null;inButton();toast('State Bank of India disconnected');});
+}
+$q('#in-connect').addEventListener('click', connectIndia);
+$q('#to-analyse').addEventListener('click',()=>go(3));
+
+/* ---------- 3 Analyse ---------- */
+const CAT_LABEL = {salary:'Salary',rent:'Rent',bill_share:'Bill share',bill:'Bill',savings_transfer:'Savings',family_support:'Family support',own_funds_overseas:'Own funds from overseas',bnpl:'Pay later',one_off_personal:'One-off, not rent',everyday:'Everyday spending',gambling:'Gambling',other:'Other'};
+function labelSource(){ return new URLSearchParams(location.search).get('demo')==='offline' ? 'fallback' : 'fallback'; }
+async function startAnalyse(){
+  const token=++S.run;
+  const tx = S.india ? S.au.concat(S.india) : S.au;
+  const groups = CP.buildGroups(tx);
+  // AI call would go here (POST /api/label). This prototype uses the saved response.
+  const labels = CP.FALLBACK_LABELS, source = labelSource();
+  $q('#src-badge').textContent = source==='live' ? 'Live AI' : 'Offline backup';
+  $q('#an-rows').innerHTML=''; $q('#to-report').disabled=true;
+  const total=tx.length, dur=reduced?0:1600, t0=performance.now();
+  await new Promise(res=>{ const tick=now=>{ if(token!==S.run) return; const p=dur?Math.min(1,(now-t0)/dur):1; $q('#an-bar').style.width=(p*100)+'%'; $q('#an-title').textContent=`Reading ${Math.round(p*total).toLocaleString('en-AU')} transactions`; p<1?requestAnimationFrame(tick):res(); }; requestAnimationFrame(tick); });
+  if(token!==S.run) return;
+  $q('#an-title').textContent=`${total.toLocaleString('en-AU')} transactions in ${groups.length} payee groups`;
+  const order = groups.slice().sort((a,b)=>(b.group.startsWith('PAYID')?1:0)-(a.group.startsWith('PAYID')?1:0));
+  for(const g of order){
+    if(token!==S.run) return;
+    const [cat,why] = labels[g.group]||['other','No saved label'];
+    const amt = g.india ? '₹'+Math.round(g.typical/CP.INR_AUD).toLocaleString('en-IN') : (g.min!==g.max && g.max/g.min>1.2 ? money(g.min)+'–'+money(g.max) : money(g.typical));
+    const pattern = `${g.count}× · ${g.interval} · ${amt}${g.notes.length?' · notes: '+g.notes.map(n=>'"'+esc(n)+'"').join(', '):''}`;
+    const tr=document.createElement('tr'); tr.className='reveal'+(g.group.startsWith('PAYID')?' show':'');
+    const lvl = cat==='one_off_personal'?'moderate':cat==='gambling'?'high':'low';
+    tr.innerHTML=`<td class="payee">${esc(g.group)}${g.india?' <span class="chip mock">India</span>':''}</td><td class="num">${pattern}</td><td><span class="chip ${cat==='rent'?'violet':lvl==='moderate'?'moderate':'grey'}">${CAT_LABEL[cat]}</span></td><td>${esc(why)}</td>`;
+    $q('#an-rows').appendChild(tr);
+    await wait(170);
+  }
+  S.A = CP.analyse(S.au, S.india, labels);
+  $q('#to-report').disabled=false;
+  await wait(1400);
+  if(token===S.run && S.step===3) go(4);
+}
+$q('#to-report').addEventListener('click',()=>{ if(S.A){ S.run++; go(4);} });
+
+/* ---------- 4 Report ---------- */
+const sl = {price:$q('#sl-price'),dep:$q('#sl-dep'),rate:$q('#sl-rate')};
+function readSliders(){
+  let price=+sl.price.value, dep=+sl.dep.value, rate=+sl.rate.value;
+  if(dep>price*0.9){ dep=Math.floor(price*0.9/5000)*5000; sl.dep.value=dep; }
+  S.sc={price,deposit:dep,rate};
+}
+Object.values(sl).forEach(x=>x.addEventListener('input',()=>{ readSliders(); renderReport(true); }));
+const LVL = {low:'Low',moderate:'Moderate',high:'High'};
+const overallTone = o => o==='Low risk'?'low':o==='Higher risk'?'high':'moderate';
+function shortSummary(R){
+  const attn=R.factors.filter(f=>f.level!=='low').map(f=>({service:'repayments at the assessment rate',shock:'the jump in monthly payments',buffer:'savings left after buying',income:'income stability',housing:'rent history',debts:'existing debts',conduct:'account conduct',history:'how much history can be verified'})[f.key]);
+  const lead = attn.length ? `Main things to watch: ${listJoin(attn)}.` : 'No factor needs attention.';
+  return `${lead} Every week of rent and every pay day is accounted for${S.india?', across 5.7 years of verified history':''}.`;
+}
+function listJoin(a){ return a.length<=1?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1]; }
+function factorHTML(f,isOpen,big){
+  let table='';
+  if(f.table) table=`<div class="tablewrap"><table><thead><tr>${f.table.head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${f.table.rows.map(r=>`<tr>${r.map((c,i)=>`<td${i>0?' class="num"':''}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  if(f.rows) table=`<div class="tablewrap"><table><thead><tr><th>Date</th><th>Payee</th><th>Amount</th><th>Status</th></tr></thead><tbody>${f.rows.map(r=>`<tr class="${r[4]?'late':''}"><td class="num" style="white-space:nowrap">${r[0]}</td><td>${esc(r[1])}</td><td class="num" style="white-space:nowrap">${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</tbody></table></div>`;
+  return `<div class="factor${big?' big':''}"><button aria-expanded="${isOpen}" data-key="${f.key}" aria-controls="ev-${f.key}">
+    <span class="lvl ${f.level}" aria-hidden="true"></span>
+    <span style="display:flex;flex-direction:column;gap:2px"><span class="fname">${f.name}</span>${big?`<span class="ffind num">${esc(f.finding)}</span>`:''}</span>
+    <span style="display:flex;gap:10px;align-items:center"><span class="chip ${f.level}">${LVL[f.level]}</span><svg class="ico chev"><use href="#i-chev"/></svg></span>
+  </button><div class="ev" id="ev-${f.key}" ${isOpen?'':'hidden'}>${big?'':`<p><b>${esc(f.finding)}</b></p>`}<p class="muted">${esc(f.why)}</p>${table}</div></div>`;
+}
+function renderReport(fromSlider){
+  if(!S.A) return;
+  S.R = tiimely.checkServiceability(S.sc, S.A);
+  const R=S.R, sc=S.sc;
+  $q('#o-price').textContent=money(sc.price); $q('#o-dep').textContent=money(sc.deposit)+' ('+Math.round(sc.deposit/sc.price*100)+'%)'; $q('#o-rate').textContent=sc.rate.toFixed(1)+'%';
+  $q('#kv').innerHTML=`Loan <b>${money(R.loan)}</b> · repayments <b>${money(R.repActual)}</b> a month · <b>${Math.round(R.sRatio*100)}%</b> of take-home pay when tested at ${R.assessRate.toFixed(1)}%`;
+  $q('#r-srcs').innerHTML=`<span class="src">Harbourside Bank · Basiq (mocked)</span>`+(S.india?`<span class="src">State Bank of India · Yodlee (mocked)</span>`:`<span class="src off">India not connected</span>`);
+  const ov=$q('#overall'), tone=overallTone(R.overall);
+  ov.className='scorebox '+tone;
+  $q('#sc-num').textContent=R.score; $q('#sc-rating').textContent=R.overall; $q('#sc-marker').style.left=R.score+'%';
+  if(fromSlider && S.lastOverall && S.lastOverall!==R.overall){ ov.classList.remove('pulse'); void ov.offsetWidth; ov.classList.add('pulse'); }
+  S.lastOverall=R.overall;
+  const target = Math.floor(R.maxPrice/5000)*5000;
+  if(R.loan>R.maxLoan){
+    $q('#lever-text').innerHTML=`To lower the risk: a property around <b>${money(target)}</b> keeps repayments under 40% of take-home pay.`;
+    $q('#lever-btn').hidden=false; $q('#lever-btn').textContent=`Try ${money(target)}`; $q('#lever-btn').dataset.price=target;
+  } else {
+    $q('#lever-text').innerHTML=`Repayments stay under 40% of take-home pay at the assessment rate.`;
+    $q('#lever-btn').hidden=true;
+  }
+  $q('#summary').textContent = shortSummary(R);
+  const open = new Set([...document.querySelectorAll('.factor [aria-expanded="true"]')].map(b=>b.dataset.key));
+  const attn=R.factors.filter(f=>f.level!=='low'), good=R.factors.filter(f=>f.level==='low');
+  $q('#attn-sec').hidden=!attn.length;
+  $q('#attn-title').textContent=`Needs attention (${attn.length})`;
+  $q('#good-title').textContent=`Looking good (${good.length})`;
+  $q('#factors-attn').innerHTML=attn.map(f=>factorHTML(f,open.has(f.key),true)).join('');
+  $q('#factors-good').innerHTML=good.map(f=>factorHTML(f,open.has(f.key),false)).join('');
+}
+document.querySelector('#s4').addEventListener('click',e=>{
+  const b=e.target.closest('.factor > button'); if(!b) return;
+  const ev=$q('#ev-'+b.dataset.key), open=ev.hidden; ev.hidden=!open; b.setAttribute('aria-expanded',open);
+});
+$q('#lever-btn').addEventListener('click',e=>{ sl.price.value=e.currentTarget.dataset.price; readSliders(); renderReport(true); });
+
+/* ---------- 5 Send ---------- */
+function profile(){
+  const R=S.R, sc=S.sc;
+  return {
+    applicant:{name:'Priya Sharma',ref:'CP-7Q4K',occupation:'Registered nurse',residency:'Permanent resident'},
+    generated:'2026-09-24',
+    overall:R.overall,
+    riskScore:{value:R.score,outOf:100,note:'Lower is safer'},
+    factors:R.factors.map(f=>({name:f.name,level:f.level,finding:f.finding})),
+    scenario:{price:sc.price,deposit:sc.deposit,rate:sc.rate,loan:R.loan,assessmentRate:R.assessRate,repaymentAtAssessmentRate:Math.round(R.repAssess),shareOfTakeHome:Math.round(R.sRatio*100)/100},
+    verifiedHistory:[{source:'Harbourside Bank via Basiq (CDR)',period:'2025-04 to 2026-09'}].concat(S.india?[{source:'State Bank of India via Yodlee (Account Aggregator)',period:'2021-01 to 2025-02'}]:[]),
+    privacy:{everydaySpendingShared:false,housemateName:'hidden',rawDataRetained:false}
+  };
+}
+
+function lenderView(){
+  const A=S.A, R=S.R, sc=S.sc;
+  const tone={low:'#2C7A52',moderate:'#A4520F',high:'#B23A3A'}, tint={low:'#E3F4EE',moderate:'#FFEBDC',high:'#FBE3E1'};
+  const ov = overallTone(R.overall);
+  const chip=l=>`<span class="lchip" style="background:${tint[l]};color:${tone[l]}">${LVL[l]}</span>`;
+  const row=f=>`<div class="frow"><span class="dot" style="background:${tone[f.level]}"></span><div class="ft"><b>${f.name}</b><span>${esc(f.finding)}</span></div>${chip(f.level)}</div>`;
+  const attn=R.factors.filter(f=>f.level!=='low'), good=R.factors.filter(f=>f.level==='low');
+  const logo=`<svg width="30" height="38" viewBox="0 0 44 56" aria-hidden="true"><rect width="44" height="56" rx="7" fill="#173B45"/><path d="M7.5 4v48" stroke="#2E5A63" stroke-width="1.5"/><circle cx="25" cy="23" r="11" fill="none" stroke="#E8EEEA" stroke-width="3.5"/><path d="M19.5 23.5l4.5 4.5 9.5-12" fill="none" stroke="#F59E5B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 40h21M16 46h13" stroke="#4F7A83" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+  const lock=`<svg class="ic" viewBox="0 0 24 24" stroke="#0E7490"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`;
+  const alert=`<svg class="ic" viewBox="0 0 24 24" stroke="#A4520F"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg>`;
+  const info=`<svg class="ic" viewBox="0 0 24 24" stroke="#56636A"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.5v.01"/></svg>`;
+  const sPct=Math.round(R.sRatio*100), sTone=R.sRatio<0.4?tone.low:R.sRatio<=0.5?tone.moderate:tone.high;
+  return `<div class="top"><div class="lmark">SH</div><span class="lname">Southgate Home Loans</span><span class="sep">/</span><span>Application review</span>
+  <div class="right"><span>Application APP-20931</span><span>Received 24 Sep 2026, 10:42</span><span>Assessor: J. Tran</span></div></div>
+  <div class="grid">
+   <div class="col">
+    <div class="lcard"><div class="lbl">Applicant</div><h2 style="font-size:30px;margin-top:4px">Priya Sharma</h2><div style="color:#56636A">Registered nurse · permanent resident</div>
+     <dl><dt>Property</dt><dd>${money(sc.price)}</dd><dt>Deposit</dt><dd>${money(sc.deposit)} (${Math.round(sc.deposit/sc.price*100)}%)</dd><dt>Loan requested</dt><dd>${money(R.loan)}</dd><dt>Rate</dt><dd>${sc.rate.toFixed(2)}%, 30 years</dd></dl></div>
+    <div class="lcard"><div class="lbl">Serviceability</div><div style="display:flex;align-items:baseline;gap:10px;margin-top:6px"><b class="d" style="font-size:44px;color:${sTone}">${sPct}%</b><span style="color:#56636A">of take-home pay at ${R.assessRate.toFixed(1)}%</span></div>
+     <dl><dt>Repayment, tested</dt><dd>${money(R.repAssess)}/mo</dd><dt>Repayment, actual rate</dt><dd>${money(R.repActual)}/mo</dd><dt>Verified take-home</dt><dd>${money(A.takeHome)}/mo</dd></dl>
+     <div style="margin-top:16px;background:#ECE9FF;color:#3E329A;border-radius:12px;padding:12px 14px;font-size:16px">A loan up to ${money(Math.floor(R.maxLoan/1000)*1000)} keeps repayments under 40%.</div></div>
+   </div>
+   <div class="cp">
+    <div class="cphead">${logo}<h2>Credit Passport risk profile</h2><span class="ver"><svg class="ic" viewBox="0 0 24 24" stroke="#2C7A52"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5 5.5-6"/></svg>Bank-sourced · ${S.india?'5.7 years':'18 months'}</span></div>
+    <div class="hero"><div><div class="bignum" style="color:${tone[ov]}">${R.score}</div><div class="of">out of 100 risk score</div></div>
+     <div><div class="lrating" style="color:${tone[ov]}">${R.overall}</div><div class="lscale"><span class="mk" style="left:${R.score}%"></span></div><div class="sl"><span>Lower risk</span><span>Higher risk</span></div>
+     <div class="lsrcs"><span class="lsrc">Harbourside Bank · Consumer Data Right</span>${S.india?'<span class="lsrc">State Bank of India · Account Aggregator</span>':''}</div></div></div>
+    ${attn.length?`<div class="fsec2"><h3>Needs attention (${attn.length})</h3>${attn.map(row).join('')}</div>`:''}
+    <div class="fsec2" style="padding-bottom:18px"><h3>Looking good (${good.length})</h3>${good.map(row).join('')}</div>
+   </div>
+   <div class="col">
+    <div class="lcard"><h3 style="font-size:21px">Worth knowing</h3><ul>
+     <li>${alert}1 bill paid 4 days late, May 2025</li><li>${alert}1 pay-later plan, fully repaid</li><li>${info}${money(A.familyMonthly)} a month to family, counted as an expense</li></ul></div>
+    <div class="lcard"><h3 style="font-size:21px">Not shared with you</h3><ul style="color:#3F4C52">
+     <li>${lock}Individual everyday purchases</li><li>${lock}The housemate's name</li><li>${lock}Raw bank data (deleted after the profile was built)</li></ul></div>
+    <div style="display:flex;flex-direction:column;gap:12px"><div class="lbtn p">Add profile to assessment</div><div class="lbtn g">Ask the applicant a question</div></div>
+   </div>
+  </div>
+  <div class="foot">Mock lender view. Made-up people, banks and data.</div>`;
+}
+function fitLender(){ const w=$q('#lvwrap'); if(w&&w.clientWidth) $q('#lv').style.transform=`scale(${w.clientWidth/1920})`; }
+window.addEventListener('resize', fitLender);
+function renderSend(){
+  if(!S.R){ if(S.A){ S.R=tiimely.checkServiceability(S.sc,S.A);} else return; }
+  $q('#flow-in').className = 'node'+(S.india?'':' off');
+  $q('#flow-in').innerHTML = S.india ? '<b>Yodlee</b><span class="muted small">State Bank of India</span>' : '<b>Yodlee</b><span class="small">Not connected</span>';
+  const R=S.R;
+  $q('#receives').innerHTML=[
+    `<b>${R.overall}, risk score ${R.score} out of 100</b>, with all 8 factors`,
+    `Verified history: ${S.india?'5.7 years, Australia and India':'18 months, Australia only'}`,
+    `Loan scenario: ${money(S.sc.price)} price, ${money(S.sc.deposit)} deposit, ${S.sc.rate.toFixed(1)}% rate`,
+    `Serviceability result: ${Math.round(R.sRatio*100)}% of take-home pay at ${R.assessRate.toFixed(1)}%`
+  ].map(t=>`<li><svg class="ico" style="color:var(--low)"><use href="#i-check"/></svg><span>${t}</span></li>`).join('');
+  $q('#payload').textContent = JSON.stringify(profile(), null, 2);
+  $q('#lv').innerHTML = lenderView(); requestAnimationFrame(fitLender);
+  $q('#sent').hidden=true; $q('#send').disabled=false; $q('#send').textContent='Send risk profile to lender';
+}
+$q('#send').addEventListener('click', async ()=>{
+  const b=$q('#send'); b.disabled=true; b.textContent='Sending…';
+  const res = await tiimely.sendRiskProfile(profile());
+  b.textContent='Sent';
+  $q('#sent-text').textContent=`Received by ${res.lender} (mock) · ref ${res.reference}`; $q('#sent').hidden=false;
+  toast('Sent to lender (mock)');
+});
+$q('#restart').addEventListener('click',()=>{
+  S.run++; Object.assign(S,{step:1,reached:1,au:null,india:null,A:null,R:null,sc:{price:550000,deposit:110000,rate:6},lastOverall:null});
+  sl.price.value=550000; sl.dep.value=110000; sl.rate.value=6;
+  $q('#au-status').innerHTML='<button class="btn" id="au-connect">Connect Harbourside Bank</button>';
+  $q('#au-connect').addEventListener('click', async ()=>{
+    $q('#au-status').innerHTML='<div class="status muted">Connecting to Harbourside Bank…</div>';
+    const r = await basiq.connectAustralianAccounts(); S.au=r.transactions; S.A=null;
+    $q('#au-status').innerHTML=`<div class="status ok"><svg class="ico"><use href="#i-check"/></svg>Connected · ${S.au.length.toLocaleString('en-AU')} transactions</div>`;
+    $q('#to-analyse').disabled=false;
+  });
+  inButton(); $q('#to-analyse').disabled=true;
+  go(1);
+});
+
+renderSteps();
+})();
+</script>
+</body>
+</html>
